@@ -41,6 +41,41 @@ defmodule NewRelix.InstrumenterTest do
 
   end
 
+  defmodule Ecto.LogEntry do
+
+    defstruct query: nil, source: nil, params: [], query_time: nil,
+              decode_time: nil, queue_time: nil, result: nil,
+              connection_pid: nil, ansi_color: nil
+
+    def entry do
+      %Ecto.LogEntry{
+        ansi_color: nil,
+        connection_pid: nil,
+        decode_time: 29971,
+        params: [2],
+        query: "SELECT u0.\"id\", u0.\"name\", u0.\"inserted_at\", u0.\"updated_at\" FROM \"user\" AS u0 WHERE (u0.\"id\" = $1)",
+        query_time: 2550178,
+        queue_time: 82553,
+        result: {:ok, %{
+          columns: ["id", "name", "inserted_at", "updated_at"],
+          command: :select,
+          connection_id: 75519,
+          num_rows: 1,
+          rows: [[%{
+                    __meta__: nil,
+                    id: 2,
+                    inserted_at: ~N[2017-03-13 18:12:07.322992],
+                    name: "user2",
+                    updated_at: ~N[2017-03-13 18:12:07.322999]
+                  }]
+                ]
+          }
+        },
+        source: "user"
+      }
+    end
+  end
+
   describe "instrumenter" do
 
     test "measure/2 executes MFA" do
@@ -79,6 +114,19 @@ defmodule NewRelix.InstrumenterTest do
 
       assert label == "Web/Endpoint/instrument[ms|render]"
       assert_between(elapsed, 500, 505)
+    end
+
+    test "log_entry records query time" do
+      require Ecto.LogEntry
+
+      Process.register self(), :test
+      entry = Ecto.LogEntry.entry()
+      Instrument.log_entry(entry)
+
+      {label, elapsed} = assign_received()
+
+      assert label == "Database/Query[ms|query]"
+      assert elapsed == 2.550178
     end
   end
 

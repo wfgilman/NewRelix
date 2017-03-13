@@ -81,11 +81,10 @@ defmodule NewRelix.Instrumenter do
       end
 
       @doc false
-      @spec log_entry(Ecto.LogEntry.t) :: :ok
-      def log_entry(%Ecto.LogEntry{query_time: time} = log_entry) do
-        IO.inspect log_entry
+      @spec log_entry(map) :: :ok
+      def log_entry(%{query_time: time} = log_entry) do
         label = "Database/Query[ms|query]"
-        @adapters[:collector].record_value(label, time / 1_000)
+        @adapters[:collector].record_value(label, time / 1_000_000)
       end
 
     end
