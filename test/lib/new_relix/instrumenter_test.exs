@@ -7,20 +7,24 @@ defmodule NewRelix.InstrumenterTest do
 
   alias NewRelix.Instrumenter
 
+  defmodule Instrument do
+    use NewRelix.Instrumenter
+  end
+
   defmodule Phoenix.Endpoint do
 
     defmacro instrument(event, runtime \\ Macro.escape(%{}), fun) do
       compile = Macro.escape(strip_caller(__ENV__))
 
       quote do
-        result = NewRelix.Instrumenter.unquote(event)(:start, unquote(compile),
+        result = Instrument.unquote(event)(:start, unquote(compile),
           unquote(runtime))
         start = :erlang.monotonic_time()
         try do
           unquote(fun).()
         after
           diff = :erlang.monotonic_time() - start
-          NewRelix.Instrumenter.unquote(event)(:stop, diff, result)
+          Instrument.unquote(event)(:stop, diff, result)
         end
       end
     end
@@ -42,7 +46,7 @@ defmodule NewRelix.InstrumenterTest do
     test "measure/2 executes MFA" do
       Process.register self(), :test
       mfa = {:timer, :sleep, [42]}
-      Instrumenter.measure(mfa, [label: "Some/Label", count_unit: "message"])
+      Instrument.measure(mfa, [label: "Some/Label", count_unit: "message"])
 
       {label, elapsed} = assign_received()
 

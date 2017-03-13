@@ -16,7 +16,7 @@ defmodule NewRelix.Poller do
   @poll_interval get_env(:new_relix, :poll_interval) || 30_000
   @retry_options get_env(:new_relix, :retry_options) ||
     [retries: 3, jitter: 0.2]
-  @adapters get_env(:new_relix, Adapters)
+  @adapters NewRelix.compile_config()
 
   # Client API
 
@@ -57,9 +57,7 @@ defmodule NewRelix.Poller do
 
   defp start_task([]), do: []
   defp start_task(components) do
-    push_fun = fn ->
-      Kernel.apply(@adapters[:agent], :push, [components])
-    end
+    push_fun = fn -> @adapters[:agent].push(components) end
     task = GenRetry.Task.Supervisor.async_nolink(NewRelix.Task.Supervisor,
             push_fun, @retry_options)
     List.wrap(task)

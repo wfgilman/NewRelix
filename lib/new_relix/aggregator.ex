@@ -3,7 +3,7 @@ defmodule NewRelix.Aggregator do
   Aggregates collected metrics for submission to New Relic.
   """
 
-  @adapters Application.get_env(:new_relix, Adapters)
+  @adapters NewRelix.compile_config()
 
   @doc """
   Transforms `Collector.t` to components list.

@@ -26,4 +26,22 @@ defmodule NewRelix do
     Application.get_env(:new_relix, :plugin_guid) != nil &&
     Application.get_env(:new_relix, :license_key) != nil
   end
+
+  @doc false
+  @spec compile_config :: Keyword.t
+  def compile_config do
+    if Mix.env == :test do
+      [
+       aggregator: NewRelix.Mock.Aggregator,
+       agent: NewRelix.Mock.Agent,
+       collector: NewRelix.Mock.Collector
+      ]
+    else
+      [
+       aggregator: NewRelix.Aggregator,
+       agent: NewRelix.Agent,
+       collector: NewRelix.Collector
+      ]
+    end
+  end
 end
