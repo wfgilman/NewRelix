@@ -17,7 +17,8 @@ defmodule NewRelix.Instrumenter do
 
       Options:
       * `label` - New Relic metric name, e.g. "Database/ETL". See docs for naming
-      accepted conventions. Defaults to "Other/ModuleName/function_name"
+      accepted conventions. Defaults to "Other/ModuleName/function_name" where
+      ModuleName is the alias (e.g. NewRelixApp.Repo -> Repo).
       * `count_unit` - Description of the unit that is beging recorded. Defaults to
       blank.
 
@@ -29,7 +30,7 @@ defmodule NewRelix.Instrumenter do
       @spec measure({atom, atom, list}, Keyword.t) :: any
       def measure({mod, fun, args}, opts \\ []) do
         {elapsed, result} = :timer.tc(mod, fun, args)
-        name = opts[:label] || "Other/#{mod}/#{fun}"
+        name = opts[:label] || "Other/#{get_alias(mod)}/#{fun}"
         count_unit = opts[:count_unit] || ""
         label = "#{name}[ms|#{count_unit}]"
         @adapters[:collector].record_value(label, elapsed / 1_000)
@@ -86,6 +87,9 @@ defmodule NewRelix.Instrumenter do
         label = "Database/Query[ms|query]"
         @adapters[:collector].record_value(label, time / 1_000_000)
       end
+
+      defoverridable [measure: 2, log_entry: 1, phoenix_controller_call: 3,
+                      phoenix_controller_render: 3]
 
     end
   end
