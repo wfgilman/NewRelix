@@ -10,6 +10,8 @@ The main changes are that this library targets the Plugin API specifically and
 doesn't use any legacy code or aggregation logic from `newrelic-erlang`. It also
 is designed to work with the instrumentation API from Phoenix.
 
+New Relic Plugins [documentation](https://docs.newrelic.com/docs/plugins/plugins-new-relic).
+
 ## Installation
 
 Add `new_relix` to your list of dependencies in `mix.exs`:
