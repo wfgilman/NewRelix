@@ -81,7 +81,7 @@ defmodule NewRelix.Instrumenter do
       end
 
       @doc false
-      @spec name(Ecto.LogEntry.t) :: :ok
+      @spec log_entry(Ecto.LogEntry.t) :: :ok
       def log_entry(%Ecto.LogEntry{query_time: time} = log_entry) do
         IO.inspect log_entry
         label = "Database/Query[ms|query]"
