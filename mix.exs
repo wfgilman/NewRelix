@@ -45,7 +45,7 @@ defmodule NewRelix.Mixfile do
   defp package do
     [
       name: :new_relix,
-      files: ["config", "lib", "test", "mix.exs", "README*", "LICENSE*"],
+      files: ["lib", "test", "mix.exs", "README*", "LICENSE*"],
       licenses: ["MIT"],
       maintainers: ["Will Gilman"],
       links: %{"Github" => "https://github.com/wfgilman/NewRelix"}

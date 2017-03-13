@@ -33,8 +33,12 @@ config :new_relix,
   retry_options: [retries: 3, jitter: 0.2],
   httpoison_options: [timeout: 8000, recv_timeout: 8000]
 ```
+`poll_interval`, `retry_options` and `httpoison_options` are optional and default to
+the values above.
 
 ## Usage
+
+### Generic
 
 Generic instrumentation is achieved using `NewRelix.Instrumenter.measure/1`:
 
