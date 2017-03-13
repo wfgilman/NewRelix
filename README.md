@@ -20,7 +20,7 @@ Add `new_relix` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:new_relix, "~> 0.1.0"}]
+  [{:new_relix, github: "wfgilman/NewRelix"}]
 end
 ```
 
@@ -79,7 +79,7 @@ with the following:
 result = MyApp.Instrument.measure({MyModule, :my_function, [my_arg]})
 ```
 The time it takes to execute the function will be recorded and sent to New
-Relic. The label associated with the measurement defaults to "Other/Mod/fun[ms|]",
+Relic. The label associated with the measurement defaults to `"Other/#{Mod}/#{fun}[ms|]"`,
 but can be overridden by providing a Keyword list to `measure/1`.
 ```elixir
 opt = [label: "Database/ETL", count_unit: "query"]
@@ -91,8 +91,8 @@ result = MyApp.Instrument.measure(mfa, opts)
 Phoenix instrumentation is achieved by implementing callback functions which are
 called by `Phoenix.Endpoint.instrument/3`. Two callbacks are implemented by
 default: `:phoenix_controller_call` and `:phoenix_controller_render`. The labels
-associated with these events are "Web/Mod/fun[ms|call]" and "Web/Mod/fun[ms|render]",
-respectively.
+associated with these events are `"Web/#{Mod}/#{fun}[ms|call]"` and `"Web/#{Mod}/#{fun}[ms|render]"`,
+respectively. These functions are overridable if you want to change the labels.
 
 Any Phoenix function can be instrumented with Phoenix's extensible API. Just add
 the callbacks to `MyApp.Instrument` like so:
@@ -119,7 +119,7 @@ extensibility. This limits the metadata available for instrumentation to the
 fields in the `Ecto.LogEntry` struct. However, if you do want to measure all
 database query execution times, simply configure Ecto `:loggers` as described above.
 
-`log_entry/1` simply records the query time under the label "Database/Query[ms|query]".
+`log_entry/1` simply records the query time under the label `"Database/Query[ms|query]"`.
 However, this function can be overridden to provide more detail. For example:
 ```elixir
 defmodule MyApp.Instrument do
@@ -144,3 +144,32 @@ Ecto Logger specification is documented [here](https://hexdocs.pm/ecto/Ecto.Repo
 Details on the `Ecto.LogEntry` struct are [here](https://hexdocs.pm/ecto/Ecto.LogEntry.html#content).
 
 Again, if you're not interested in this, just don't configure the Ecto loggers.
+
+## New Relic Metric Naming
+
+The metrics themselves are pretty simple, but creating a taxonomy for your metrics
+is an individualized thing so I've tried to leave it open to customization. Just
+follow the conventions specified by New Relic.
+
+All metric names are prefixed with `"Component/#{YourAppName}"` prior to being
+pushed to New Relic.
+
+[Metric naming reference](https://docs.newrelic.com/docs/plugins/plugin-developer-resources/developer-reference/metric-naming-reference)
+
+## Testing
+
+The library uses `bypass` to test the pushing agent and `coveralls` and `credo`
+for coverage and style.
+```
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/new_relix.ex                               47        7        0
+100.0% lib/new_relix/agent.ex                         83       18        0
+100.0% lib/new_relix/aggregator.ex                    70       16        0
+100.0% lib/new_relix/collector.ex                     56        5        0
+  0.0% lib/new_relix/instrumenter.ex                  96        0        0
+100.0% lib/new_relix/poller.ex                        75       16        0
+100.0% test/support/mock.ex                           61        2        0
+[TOTAL] 100.0%
+----------------
+```

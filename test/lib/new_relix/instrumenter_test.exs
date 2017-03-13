@@ -5,8 +5,6 @@ defmodule NewRelix.InstrumenterTest do
 
   import TestHelper.Assertions
 
-  alias NewRelix.Instrumenter
-
   defmodule Instrument do
     use NewRelix.Instrumenter
   end
