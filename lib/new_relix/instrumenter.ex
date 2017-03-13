@@ -80,6 +80,14 @@ defmodule NewRelix.Instrumenter do
         String.replace_suffix(fun, "/#{arity}", "")
       end
 
+      @doc false
+      @spec name(Ecto.LogEntry.t) :: :ok
+      def log_entry(%Ecto.LogEntry{query_time: time} = log_entry) do
+        IO.inspect log_entry
+        label = "Database/Query[ms|query]"
+        @adapters[:collector].record_value(label, time / 1_000)
+      end
+
     end
   end
 end
