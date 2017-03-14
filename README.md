@@ -162,7 +162,7 @@ The NewRelix architecture follows romul's [newrelix.ex](https://github.com/romul
 All credit goes to him!
 
 Metrics are recored in `NewRelix.Collector`, a GenServer which maintains them
-in state. `NewRelic.Poller` retrieves the state at the poll interval and spawns
+in state. `NewRelix.Poller` retrieves the state at the poll interval and spawns
 a `Task` to execute the call to the New Relic API. The `Task` is managed by
 [GenRetry](https://github.com/appcues/gen_retry). NewRelix uses [HTTPoison](https://github.com/edgurgel/httpoison)
 as its HTTP client.
