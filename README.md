@@ -68,7 +68,7 @@ end
 
 ### Generic
 
-Generic instrumentation is achieved using `MyApp.Instrument.measure/1`:
+Generic instrumentation is achieved using `MyApp.Instrument.measure/2`:
 
 For example, you can replace any function in your application:
 ```elixir
@@ -80,7 +80,7 @@ result = MyApp.Instrument.measure({MyModule, :my_function, [my_arg]})
 ```
 The time it takes to execute the function will be recorded and sent to New
 Relic. The label associated with the measurement defaults to `"Other/#{Mod}/#{fun}[ms|]"`,
-but can be overridden by providing a Keyword list to `measure/1`.
+but can be overridden by providing a Keyword list to `measure/2`.
 ```elixir
 opt = [label: "Database/ETL", count_unit: "query"]
 result = MyApp.Instrument.measure(mfa, opts)
@@ -136,7 +136,7 @@ This will provide some additional detail about the query:
 ```elixir
 %{"Database/SELECT[ms|query]" => [2.5567]}
 ```
-If you want more detail than this, it's better to wrap your query in `measure/1`
+If you want more detail than this, it's better to wrap your query in `measure/2`
 so you can specify the name explicitly.
 
 Ecto Logger specification is documented [here](https://hexdocs.pm/ecto/Ecto.Repo.html#content).
@@ -156,6 +156,17 @@ pushed to New Relic.
 
 [Metric naming reference](https://docs.newrelic.com/docs/plugins/plugin-developer-resources/developer-reference/metric-naming-reference)
 
+## Pushing to New Relic
+
+The NewRelix architecture follows romul's [newrelix.ex](https://github.com/romul/newrelic.ex) project.
+All credit goes to him!
+
+Metrics are recored in `NewRelix.Collector`, a GenServer which maintains them
+in state. `NewRelic.Poller` retrieves the state at the poll interval and spawns
+a `Task` to execute the call to the New Relic API. The `Task` is managed by
+[GenRetry](https://github.com/appcues/gen_retry). NewRelix uses [HTTPoison](https://github.com/edgurgel/httpoison)
+as its HTTP client.
+
 ## Testing
 
 The library uses `bypass` to test the pushing agent and `coveralls` and `credo`
@@ -173,3 +184,5 @@ COV    FILE                                        LINES RELEVANT   MISSED
 [TOTAL] 100.0%
 ----------------
 ```
+
+Distributed under the [MIT License](https://github.com/wfgilman/NewRelix/blob/master/LICENSE).
